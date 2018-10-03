@@ -16,28 +16,22 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, client) => {
     console.log('Connected to MongoDB server');
     const db = client.db('TodoApp');
 
-    db.collection('Todos').insertOne({
-        text: 'Something to do',
-        completed: false
-    }, (err, result) => {
-        if (err) {
-            return console.log('Unable to insert todo', err);
-        }
+    // no argument to find() fetches all todos. returns a 'cursor' (pointer) that has methods to get our documents
+    // db.collection('Todos').find({
+    //     _id: new ObjectID('5ba067742c7e3d3f642e20f1')
+    // }).toArray().then((docs) => {
+    //     console.log('todos:');
+    //     console.log(JSON.stringify(docs, undefined, 2));
+    // }, (err) => {
+    //     console.log('failed to fetch todos');
+    // });
 
-        // .ops attribute has data of everything isnerted
-        console.log(JSON.stringify(result.ops, undefined, 2));
+    db.collection('Todos').find().count().then((count) => {
+        console.log(`todos: ${count}`);
+    }, (err) => {
+        console.log('failed to fetch todos');
     });
 
-    // db.collection('Users').insertOne({
-    //     name: 'Travis',
-    //     age: 26,
-    //     location: 'Lisle'
-    // }, (err, result) => {
-    //     if (err) {
-    //         return console.log('Unable to insert user');
-    //     }
-    //     console.log(result.ops[0]._id.getTimestamp());
-    // });
 
     client.close();
 });
