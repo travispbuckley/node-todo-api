@@ -1,29 +1,32 @@
-var mongoose = require('mongoose');
+var express = require('express');
+var bodyParser = require('body-parser');
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TodoApp');
+// {varName} is es6 'destructuring' to create variable from the exports of that file.
+var {mongoose} = require('./db/mongoose');
+var {Todo} = require('./models/todo');
+var {User} = require('./models/user');
 
-// create model for a collection. Pass in model name, and the attributes for that model
-var Todo = mongoose.model('Todo', {
-    text: {
-        type: String
-    },
-    completed: {
-        type: Boolean
-    },
-    completedAt: {
-        type: Number    
-    }
-});
+var app = express();
 
-var newTodo = new Todo({
-    text: 'Mow the lawn',
-    completed: true,
-    completedAt: 1234567
-});
+// setup middleware
+app.use(bodyParser.json());
 
-newTodo.save().then((doc) => {
-    console.log('Saved Todo', doc);
-}, (e) => {
-    console.log('Unable to save Todo.');
+app.post('/todos', (req, res) => {
+    // create the todo
+    var todo = new Todo({
+        text: req.body.text
+    });
+
+    todo.save().then((doc) => {
+        // once saved, send the document back to the user
+        res.send(doc);
+    }, (err) => {
+        // set a bad status
+        res.status(400).send(err);
+    })
+    console.log(req.body);
+})
+
+app.listen(3000, () => {
+    console.log('Started on port 3000');
 });
